@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { FaShareAlt } from 'react-icons/fa'
-// Importar el servicio real
+import toast from 'react-hot-toast' 
 import { countdownService } from '../services/countdownService'
 import IconRenderer from '../components/IconRenderer';
 

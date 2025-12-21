@@ -103,8 +103,7 @@ export default function Create() {
       const countdownData = await countdownService.createCountdown(formData, imageFile)
       
       // URL generada
-      const countdownUrl = `${window.location.origin}/c/${countdownData.public_url}`
-      setLastCreatedUrl(countdownUrl)
+      const countdownUrl = `${import.meta.env.VITE_APP_URL || window.location.origin}/c/${countdownData.public_url}`;
       
       // Guardar referencia
       localStorage.setItem('last_countdown_url', countdownUrl)
@@ -138,8 +137,7 @@ export default function Create() {
       
       // Fallback local
       const fallbackId = `local_${Date.now().toString(36)}`
-      const fallbackUrl = `${window.location.origin}/c/${fallbackId}`
-      setLastCreatedUrl(fallbackUrl)
+      const fallbackUrl = `${import.meta.env.VITE_APP_URL || window.location.origin}/c/${fallbackId}`;
       
       const qrDataUrl = await QRCode.toDataURL(fallbackUrl, {
         width: 300,
