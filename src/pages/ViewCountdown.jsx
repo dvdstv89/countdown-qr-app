@@ -132,36 +132,36 @@ export default function ViewCountdown() {
   
   return (
     <div 
-      className="min-h-screen flex flex-col items-center justify-center p-6"
+      className="min-h-screen flex flex-col items-center justify-center p-4 md:p-6 relative"
       style={{
         background: countdown.useImage && countdown.backgroundImage
-          ? `url(${countdown.backgroundImage}) center/cover no-repeat`
+          ? `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${countdown.backgroundImage}) center/cover no-repeat`
           : countdown.backgroundColor,
         color: countdown.textColor
       }}
     >
       {/* Contenido principal */}
-      <div className="max-w-4xl w-full text-center space-y-10">
+      <div className="max-w-4xl w-full text-center space-y-8 md:space-y-10">
         
-        {/* Mostrar vistas si existen */}
+        {/* Mostrar vistas si existen - Mejor posición */}
         {countdown.views > 0 && (
-          <div className="absolute top-4 right-4 bg-black/30 backdrop-blur-sm px-4 py-2 rounded-full text-sm">
+          <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-md px-4 py-2 rounded-full text-sm text-white/90 shadow-lg">
             👁️ {countdown.views} vistas
           </div>
         )}
         
-        {/* Título y mensaje */}
-        <div className="space-y-4">
-          <h1 className="text-5xl md:text-7xl font-bold drop-shadow-lg">
+        {/* Título y mensaje con mejor contraste */}
+        <div className="space-y-4 mb-6">
+          <h1 className="text-4xl md:text-6xl font-bold drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] px-4">
             {countdown.title}
           </h1>
-          <p className="text-2xl md:text-3xl opacity-90 drop-shadow">
+          <p className="text-xl md:text-2xl opacity-95 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] px-4">
             {countdown.message}
           </p>
         </div>
         
-        {/* Countdown Timer - GRANDE */}
-        <div className="flex flex-wrap justify-center gap-4 md:gap-8">
+        {/* Countdown Timer - MEJOR DISEÑO */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 max-w-2xl mx-auto px-2">
           {Object.entries({
             days: 'Días',
             hours: 'Horas', 
@@ -170,67 +170,65 @@ export default function ViewCountdown() {
           }).map(([key, label]) => (
             <div 
               key={key} 
-              className="bg-black/20 backdrop-blur-md rounded-2xl p-6 min-w-[140px]"
+              className="bg-gradient-to-br from-black/40 to-black/20 backdrop-blur-lg rounded-2xl p-4 md:p-6 shadow-2xl border border-white/10"
             >
-              <div className="text-6xl md:text-7xl font-bold mb-2">
+              <div className="text-4xl md:text-5xl font-bold mb-1 md:mb-2 font-mono tracking-tight">
                 {timeLeft[key]?.toString().padStart(2, '0') || '00'}
               </div>
-              <div className="text-xl uppercase tracking-wider">{label}</div>
+              <div className="text-sm md:text-base uppercase tracking-widest font-semibold opacity-90">
+                {label}
+              </div>
             </div>
           ))}
         </div>
         
-        {/* Barra de Progreso con Icono */}
-        <div className="relative py-8 px-4 max-w-2xl mx-auto">
-          <div className="h-4 bg-black/30 rounded-full overflow-hidden">
+        {/* Barra de Progreso con Icono - SIN TEXTO */}
+        <div className="relative py-6 md:py-8 px-2 max-w-2xl mx-auto w-full">
+          <div className="h-3 bg-black/40 backdrop-blur-sm rounded-full overflow-hidden shadow-inner">
             <div 
-              className="h-full bg-white/60 rounded-full transition-all duration-1000"
+              className="h-full bg-gradient-to-r from-blue-500/80 to-purple-500/80 rounded-full transition-all duration-1000 shadow-lg"
               style={{ width: `${progress}%` }}
             />
           </div>
           
           {countdown.progressIcon && (
             <div 
-              className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 transition-all duration-1000"
+              className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 transition-all duration-1000 z-10"
               style={{ left: `${progress}%` }}
             >
-              <div className="w-20 h-20 filter drop-shadow-2xl">
+              <div className="w-16 h-16 md:w-20 md:h-20 filter drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]">
                 <IconRenderer 
                   iconKey={countdown.progressIcon}
                   color={countdown.textColor}
-                  size="5em"
+                  size="4em"
                   animate={true}
                 />
               </div>
             </div>
           )}
-          
-          <div className="flex justify-between text-sm mt-3">
-            <span>Inicio</span>
-            <span className="font-bold text-lg">{progress.toFixed(1)}%</span>
-            <span>Evento</span>
-          </div>
         </div>
         
-        {/* Fecha del Evento + Botón Compartir */}
-        <div className="mt-12 pt-8 border-t border-white/20 max-w-2xl mx-auto w-full">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            {/* Fecha del Evento */}
-            <div className="text-left flex-1">
-              <h3 className="text-2xl font-bold mb-2">📅 Fecha del Evento</h3>
-              <p className="text-xl">{formattedDate}</p>
+        {/* Fecha del Evento + Botón Compartir - MEJOR CONTRASTE */}
+        <div className="mt-8 md:mt-12 pt-6 md:pt-8 border-t border-white/20 max-w-2xl mx-auto w-full">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 px-2">
+            {/* Fecha del Evento con fondo para mejor legibilidad */}
+            <div className="bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-md rounded-xl p-5 md:p-6 shadow-xl border border-white/10 flex-1">
+              <h3 className="text-lg md:text-xl font-bold mb-2 text-white/90">📅 Fecha del Evento</h3>
+              <p className="text-base md:text-lg text-white font-medium tracking-wide">
+                {formattedDate}
+              </p>
             </div>
             
-            {/* Botón de Compartir */}
+            {/* Botón de Compartir con mejor diseño */}
             <div>
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(window.location.href)
                   alert('¡Enlace copiado al portapapeles!')
                 }}
-                className="px-8 py-4 bg-white/20 hover:bg-white/30 rounded-xl transition-all border border-white/30 flex items-center space-x-3 text-xl font-semibold hover:scale-105 active:scale-95"
+                className="px-6 py-3 md:px-8 md:py-4 bg-gradient-to-r from-white/25 to-white/15 backdrop-blur-lg rounded-xl transition-all duration-300 border border-white/30 flex items-center space-x-2 md:space-x-3 text-base md:text-xl font-semibold hover:bg-white/30 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
               >
-                <FaShareAlt className="text-2xl" />
+                <FaShareAlt className="text-xl md:text-2xl" />
                 <span>Compartir</span>
               </button>
             </div>
@@ -239,19 +237,18 @@ export default function ViewCountdown() {
         
         {/* Mensaje cuando termina */}
         {timeLeft.hasEnded && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm z-50">
-            <div className="bg-gradient-to-br from-purple-600 to-pink-600 p-12 rounded-3xl text-center max-w-2xl mx-6">
-              <div className="text-8xl mb-6">🎉</div>
-              <h2 className="text-5xl font-bold mb-4">¡EL EVENTO HA LLEGADO!</h2>
-              <p className="text-2xl">¡Es hora de celebrar!</p>
+          <div className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-50">
+            <div className="bg-gradient-to-br from-purple-600/95 to-pink-600/95 p-8 md:p-12 rounded-3xl text-center max-w-2xl mx-4 shadow-2xl border border-white/20">
+              <div className="text-6xl md:text-8xl mb-4 md:mb-6 animate-bounce">🎉</div>
+              <h2 className="text-3xl md:text-5xl font-bold mb-3 md:mb-4 text-white drop-shadow-lg">
+                ¡EL EVENTO HA LLEGADO!
+              </h2>
+              <p className="text-xl md:text-2xl text-white/90 font-medium">
+                ¡Es hora de celebrar!
+              </p>
             </div>
           </div>
         )}
-      </div>
-      
-      {/* Crédito pequeño */}
-      <div className="absolute bottom-4 right-4 text-white/40 text-sm">
-        Countdown QR Generator
       </div>
     </div>
   )
