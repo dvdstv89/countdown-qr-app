@@ -109,6 +109,7 @@ export default function Create() {
       // Guardar referencia
       localStorage.setItem('last_countdown_url', countdownUrl)
       localStorage.setItem('last_countdown_id', countdownData.public_url)
+      setLastCreatedUrl(countdownUrl)
       
       // Generar QR
       const qrDataUrl = await QRCode.toDataURL(countdownUrl, {
@@ -122,6 +123,7 @@ export default function Create() {
       
       setQrCode(qrDataUrl)
       setShowQR(true)
+      
       
       toast.success('✅ Countdown creado exitosamente!')
       
@@ -139,6 +141,7 @@ export default function Create() {
       // Fallback local
       const fallbackId = `local_${Date.now().toString(36)}`
       const fallbackUrl = `${import.meta.env.VITE_APP_URL || window.location.origin}/#/c/${fallbackId}`;
+      setLastCreatedUrl(fallbackUrl); 
       
       const qrDataUrl = await QRCode.toDataURL(fallbackUrl, {
         width: 300,
@@ -310,7 +313,7 @@ export default function Create() {
                 value={formData.title}
                 onChange={(e) => setFormData({...formData, title: e.target.value})}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                placeholder="Ej: Cumpleaños de David"
+                placeholder="Ej: Cumpleaños de ..."
                 required
               />
             </div>
