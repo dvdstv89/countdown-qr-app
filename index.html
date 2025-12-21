@@ -5,6 +5,14 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Countdown QR Generator</title>
+    <script>
+  // Manejar redirecciones desde 404.html
+  const redirectPath = sessionStorage.getItem('redirectPath');
+  if (redirectPath) {
+    sessionStorage.removeItem('redirectPath');
+    window.history.replaceState(null, null, redirectPath);
+  }
+</script>
   </head>
   <body>
     <div id="root"></div>

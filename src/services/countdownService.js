@@ -24,7 +24,7 @@ export const countdownService = {
       }
       
       // Generar URL pública
-      const publicUrl = `cd_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`
+     const tempPublicUrl = `cd_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`;
       
       // Preparar datos SIN DUPLICACIÓN
       const insertData = {
@@ -35,7 +35,7 @@ export const countdownService = {
         text_color: data.textColor || '#ffffff',
         background_image: backgroundImageUrl,
         progress_icon: data.progressIcon || 'FaBirthdayCake',       
-        public_url: publicUrl,
+        public_url: tempPublicUrl,
         // Solo guardar en custom_data lo que NO tiene columna propia
         custom_data: {
           start_date: this.formatDateForDB(data.startDate),
@@ -57,7 +57,7 @@ export const countdownService = {
         throw new Error(`Error al crear countdown: ${error.message}`)
       }
 
-      console.log('✅ Countdown creado:', countdownData.id)
+      console.log('✅ Countdown creado:', countdownData)
 
       return {
         id: countdownData.id,
