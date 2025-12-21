@@ -3,7 +3,10 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/countdown-qr-app/',
+  // Configuración DUAL: diferente para dev/prod
+  base: process.env.NODE_ENV === 'production' 
+    ? '/countdown-qr-app/'  // Solo en producción (GitHub Pages)
+    : '/',                   // En desarrollo local
   build: {
     outDir: 'dist',
     rollupOptions: {
@@ -15,6 +18,8 @@ export default defineConfig({
     }
   },
   server: {
-    port: 5173
+    port: 5173,
+    host: true,
+    open: true  // Abre navegador automáticamente
   }
 })

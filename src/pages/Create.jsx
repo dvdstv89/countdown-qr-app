@@ -101,6 +101,7 @@ export default function Create() {
       
       // Crear countdown en Supabase
       const countdownData = await countdownService.createCountdown(formData, imageFile)
+      console.log('Respuesta del servicio:', countdownData);
       
       // URL generada
       const countdownUrl = `${import.meta.env.VITE_APP_URL || window.location.origin}/c/${countdownData.public_url}`;
