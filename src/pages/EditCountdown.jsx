@@ -733,13 +733,13 @@ export default function EditCountdown() {
               {/* QR Image */}
               <div className="relative">
                 <div className="bg-white p-4 rounded-lg border-4 border-white shadow-lg">
-                  <QRCode
+                 <QRCodeSVG
                     value={countdownUrl}
                     size={200}
                     level="H"
-                    includeMargin
+                    bgColor="#FFFFFF"
                     fgColor="#8B5CF6"
-                  />
+                />
                 </div>
                 <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
                   ✓

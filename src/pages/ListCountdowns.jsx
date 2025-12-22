@@ -275,12 +275,12 @@ export default function ListCountdowns() {
             
             <div className="bg-white p-6 rounded-xl border border-gray-200 mb-6 flex items-center justify-center">
               <div className="bg-gray-50 p-4 rounded-lg">
-                <QRCode
-                  value={`${window.location.origin}/#/c/${selectedQR.public_url || selectedQR.id}`}
-                  size={200}
-                  level="H"
-                  includeMargin
-                  fgColor="#8B5CF6"
+              <QRCodeSVG
+                value={`${window.location.origin}/#/c/${selectedQR.public_url || selectedQR.id}`}
+                size={200}
+                level="H"
+                bgColor="#FFFFFF"
+                fgColor="#8B5CF6"
                 />
               </div>
             </div>
