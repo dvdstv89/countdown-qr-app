@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { countdownService } from '../services/countdownService';
 import toast from 'react-hot-toast';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import IconRenderer from '../components/IconRenderer';
 import { getDefaultIcons } from '../services/iconMapper';
 import { 

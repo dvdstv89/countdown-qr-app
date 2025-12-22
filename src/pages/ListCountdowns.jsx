@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { FaEdit, FaTrash, FaEye, FaQrcode, FaCopy, FaCalendarAlt, FaClock, FaExternalLinkAlt, FaImage, FaPalette } from 'react-icons/fa';
 import { countdownService } from '../services/countdownService';
 import toast from 'react-hot-toast';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import IconRenderer from '../components/IconRenderer';
 
 export default function ListCountdowns() {
