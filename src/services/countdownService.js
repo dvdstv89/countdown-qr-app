@@ -1,8 +1,65 @@
-// src/services/countdownService.js (versión optimizada)
 import { supabase } from '../lib/supabase'
 import { imageUploadService } from './imageUploadService'
 
 export const countdownService = {
+  async getAllCountdowns() {
+    try {
+      console.log('📋 Obteniendo todos los countdowns...')
+      
+      const { data, error } = await supabase
+        .from('countdowns')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('❌ Error al obtener countdowns:', error)
+        throw error
+      }
+
+      console.log(`✅ ${data?.length || 0} countdowns encontrados`)
+      
+      // Mapear los datos al formato que usa tu app
+      return data.map(item => ({
+        id: item.id,
+        public_url: item.public_url,
+        title: item.title,
+        targetDate: item.target_date,
+        startDate: item.custom_data?.start_date || item.created_at,
+        message: item.message,
+        backgroundColor: item.background_color || '#4a148c',
+        textColor: item.text_color || '#ffffff',
+        progressIcon: item.progress_icon || 'FaHourglassHalf',
+        backgroundImage: item.background_image,
+        useImage: Boolean(item.background_image),
+        views: item.views || 0,
+        created_at: item.created_at,
+        custom_data: item.custom_data || {}
+      }))
+      
+    } catch (error) {
+      console.error('💥 Error en getAllCountdowns:', error)
+      
+      // Fallback a localStorage
+      try {
+        const localCountdowns = []
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i)
+          if (key.startsWith('countdown_')) {
+            const data = JSON.parse(localStorage.getItem(key))
+            localCountdowns.push({
+              ...data,
+              id: key.replace('countdown_', '')
+            })
+          }
+        }
+        return localCountdowns
+      } catch (localError) {
+        console.error('Error cargando localmente:', localError)
+        throw error
+      }
+    }
+  },
+
   async createCountdown(data, imageFile = null) {
     try {
       console.log('📝 Creando countdown...')
@@ -24,7 +81,7 @@ export const countdownService = {
       }
       
       // Generar URL pública
-     const tempPublicUrl = `cd_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`;
+      const tempPublicUrl = `cd_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`
       
       // Preparar datos SIN DUPLICACIÓN
       const insertData = {
@@ -34,8 +91,9 @@ export const countdownService = {
         background_color: data.backgroundColor || '#4a148c',
         text_color: data.textColor || '#ffffff',
         background_image: backgroundImageUrl,
-        progress_icon: data.progressIcon || 'FaBirthdayCake',       
+        progress_icon: data.progressIcon || 'FaHourglassHalf',       
         public_url: tempPublicUrl,
+        views: 0,
         // Solo guardar en custom_data lo que NO tiene columna propia
         custom_data: {
           start_date: this.formatDateForDB(data.startDate),
@@ -122,6 +180,122 @@ export const countdownService = {
     } catch (error) {
       console.error('💥 Error en getCountdown:', error)
       throw error
+    }
+  },
+
+  async updateCountdown(id, data, imageFile = null) {
+    try {
+      console.log('✏️ Actualizando countdown:', id)
+      
+      let backgroundImageUrl = data.backgroundImage
+      
+      // Subir nueva imagen si se proporciona
+      if (imageFile && data.useImage) {
+        const uploadResult = await imageUploadService.uploadBackgroundImage(imageFile)
+        if (uploadResult.success) {
+          backgroundImageUrl = uploadResult.url
+        }
+      }
+      
+      // Preparar datos para actualizar
+      const updateData = {
+        title: data.title,
+        target_date: this.formatDateForDB(data.targetDate),
+        message: data.message || null,
+        background_color: data.backgroundColor || '#4a148c',
+        text_color: data.textColor || '#ffffff',
+        background_image: backgroundImageUrl,
+        progress_icon: data.progressIcon || 'FaHourglassHalf',
+        updated_at: new Date().toISOString(),
+        // Actualizar custom_data manteniendo datos existentes
+        custom_data: {
+          ...data.custom_data,
+          start_date: this.formatDateForDB(data.startDate),
+          use_image: Boolean(data.useImage)
+        }
+      }
+      
+      console.log('📤 Actualizando en BD:', updateData)
+
+      const { data: updatedData, error } = await supabase
+        .from('countdowns')
+        .update(updateData)
+        .eq('id', id)
+        .select()
+        .single()
+
+      if (error) {
+        console.error('❌ Error de Supabase:', error)
+        throw new Error(`Error al actualizar countdown: ${error.message}`)
+      }
+
+      // Actualizar localStorage como backup
+      localStorage.setItem(`countdown_${id}`, JSON.stringify({
+        ...data,
+        backgroundImage: backgroundImageUrl
+      }))
+
+      console.log('✅ Countdown actualizado:', updatedData)
+
+      return {
+        id: updatedData.id,
+        public_url: updatedData.public_url,
+        title: updatedData.title,
+        targetDate: updatedData.target_date,
+        startDate: updatedData.custom_data?.start_date || data.startDate,
+        message: updatedData.message,
+        backgroundColor: updatedData.background_color,
+        textColor: updatedData.text_color,
+        progressIcon: updatedData.progress_icon || 'FaHourglassHalf',
+        backgroundImage: updatedData.background_image,
+        useImage: Boolean(updatedData.background_image),
+        views: updatedData.views || 0,
+        created_at: updatedData.created_at
+      }
+      
+    } catch (error) {
+      console.error('💥 Error en updateCountdown:', error)
+      
+      // Fallback: guardar solo en localStorage
+      try {
+        localStorage.setItem(`countdown_${id}`, JSON.stringify(data))
+        return data
+      } catch (localError) {
+        throw error
+      }
+    }
+  },
+
+  async deleteCountdown(id) {
+    try {
+      console.log('🗑️ Eliminando countdown:', id)
+      
+      const { error } = await supabase
+        .from('countdowns')
+        .delete()
+        .eq('id', id)
+
+      if (error) {
+        console.error('❌ Error de Supabase:', error)
+        throw new Error(`Error al eliminar countdown: ${error.message}`)
+      }
+
+      // Eliminar de localStorage también
+      localStorage.removeItem(`countdown_${id}`)
+      
+      console.log('✅ Countdown eliminado')
+      return true
+      
+    } catch (error) {
+      console.error('💥 Error en deleteCountdown:', error)
+      
+      // Fallback: eliminar solo de localStorage
+      try {
+        localStorage.removeItem(`countdown_${id}`)
+        return true
+      } catch (localError) {
+        throw error
+      }
     }
   },
 
