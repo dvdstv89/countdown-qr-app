@@ -7,11 +7,11 @@
  "scripts": {
     "dev": "vite --mode development",
     "build": "vite build --mode production",
-    "preview": "vite preview --port 4173",
-    "build:gh-pages": "vite build --mode production",
-    "deploy": "npm run build:gh-pages && gh-pages -d dist",
+    "preview": "vite preview --port 4173 --mode production",
+    "deploy": "npm run build && gh-pages -d dist",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "predeploy": "npm run build"
+    "clean": "rm -rf node_modules dist package-lock.json",
+    "fresh": "npm run clean && npm install && npm run dev"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.3",
