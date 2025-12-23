@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom' 
 import { FaShareAlt } from 'react-icons/fa'
 import toast from 'react-hot-toast' 
 import { countdownService } from '../services/countdownService'
