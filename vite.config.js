@@ -4,15 +4,25 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // IMPORTANTE: Para GitHub Pages, usa solo '/' en desarrollo
-  base: process.env.NODE_ENV === 'production' && process.env.VITE_GH_PAGES === 'true'
-    ? '/countdown-qr-app/'
-    : '/',
+  // Configuración CRÍTICA para GitHub Pages
+  base: '/countdown-qr-app/',
   build: {
     outDir: 'dist',
-    sourcemap: false,
+    // Añadir estas opciones para asegurar rutas correctas
+    assetsDir: 'assets',
+    emptyOutDir: true,
     rollupOptions: {
       output: {
+        // Asegurar nombres de archivos consistentes
+        assetFileNames: (assetInfo) => {
+          let extType = assetInfo.name.split('.').at(1)
+          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
+            extType = 'img'
+          }
+          return `assets/${extType}/[name]-[hash][extname]`
+        },
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
           qrcode: ['qrcode', 'qrcode.react', 'react-qr-code']
@@ -24,14 +34,6 @@ export default defineConfig({
     port: 5173,
     host: true,
     open: true,
-    // Esto es CRÍTICO para SPA en desarrollo
-    historyApiFallback: true,
-    cors: true
-  },
-  // Resolver problema de require
-  resolve: {
-    alias: {
-      // Si hay algún paquete que use require, añádelo aquí
-    }
+    historyApiFallback: true
   }
 })
