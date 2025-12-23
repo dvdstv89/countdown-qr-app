@@ -5,14 +5,12 @@
   "type": "module",
   "homepage": "https://dvdstv89.github.io/countdown-qr-app",
  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview --port 4173",
+   "dev": "vite --mode development",
+    "build": "vite build --mode production",
+    "preview": "vite preview --port 4173 --mode production",
     "deploy": "npm run build && gh-pages -d dist",
-    "build:local": "vite build --mode development",
-    "dev:host": "vite --host --port 5173",
-    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "clean": "rm -rf dist node_modules package-lock.json",
+    "dev:host": "vite --host --port 5173 --mode development",
+    "clean": "rm -rf dist node_modules .vite package-lock.json",
     "fresh": "npm run clean && npm install && npm run dev"
   },
   "dependencies": {
