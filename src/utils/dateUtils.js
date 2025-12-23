@@ -1,23 +1,38 @@
 export const formatDateForInput = (dateString) => {
   if (!dateString) return '';
   
-  const date = new Date(dateString);
-  
-  // Ajustar para el huso horario local
-  const timezoneOffset = date.getTimezoneOffset() * 60000; // en milisegundos
-  const localDate = new Date(date.getTime() - timezoneOffset);
-  
-  return localDate.toISOString().slice(0, 16);
+  try {
+    const date = new Date(dateString);
+    
+    // Ajustar por el timezone offset
+    const timezoneOffset = date.getTimezoneOffset() * 60000;
+    const adjustedDate = new Date(date.getTime() - timezoneOffset);
+    
+    // Formato YYYY-MM-DDTHH:MM para datetime-local
+    return adjustedDate.toISOString().slice(0, 16);
+    
+  } catch (error) {
+    console.error('Error formateando fecha para input:', error);
+    return '';
+  }
 };
 
 export const formatDateForDB = (dateString) => {
   if (!dateString) return new Date().toISOString();
   
-  // datetime-local no incluye info de timezone, asumimos hora local
-  const date = new Date(dateString);
+  // Si ya es ISO, devolverlo
+  if (dateString.includes('T') && dateString.endsWith('Z')) {
+    return dateString;
+  }
   
-  // Convertir a ISO string para la base de datos
-  return date.toISOString();
+  // Si es datetime-local (YYYY-MM-DDTHH:MM)
+  if (dateString.includes('T')) {
+    // Añadir segundos y mantener como hora local
+    return dateString + ':00';
+  }
+  
+  // Si es solo fecha
+  return dateString + 'T00:00:00';
 };
 
 export const getLocalDateString = (dateString) => {
@@ -27,4 +42,11 @@ export const getLocalDateString = (dateString) => {
     timeZone: 'UTC',
     hour12: false
   });
+};
+
+export const getCurrentDateTimeForInput = () => {
+  const now = new Date();
+  const timezoneOffset = now.getTimezoneOffset() * 60000;
+  const adjustedDate = new Date(now.getTime() - timezoneOffset);
+  return adjustedDate.toISOString().slice(0, 16);
 };

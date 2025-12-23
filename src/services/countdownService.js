@@ -60,7 +60,14 @@ export const countdownService = {
 
   async createCountdown(data, imageFile = null) {
     try {
-      console.log('📝 Creando countdown...')
+      console.log('📝 CREATE - Datos recibidos:', {
+        targetDate: data.targetDate,
+        startDate: data.startDate,
+        formattedTarget: this.formatDateForDB(data.targetDate),
+        formattedStart: this.formatDateForDB(data.startDate),
+        timezoneOffset: new Date().getTimezoneOffset(),
+        currentTime: new Date().toString()
+      })
       
       let backgroundImageUrl = null
       
@@ -94,7 +101,7 @@ export const countdownService = {
         }
       }
       
-      console.log('📤 Insertando en BD:', insertData)
+      console.log('📤 INSERT a BD:', insertData)
 
       const { data: countdownData, error } = await supabase
         .from('countdowns')
@@ -150,7 +157,7 @@ export const countdownService = {
 
       if (error) throw error
 
-      // Incrementar vistas - LLAMADA AL MÉTODO
+      // Incrementar vistas
       await this.incrementViews(countdownData.id, countdownData.views)
       
       return {
@@ -175,7 +182,6 @@ export const countdownService = {
     }
   },
 
-  // NUEVO MÉTODO: incrementViews
   async incrementViews(countdownId, currentViews = 0) {
     try {
       console.log('🔢 Incrementando vistas para ID:', countdownId)
@@ -205,7 +211,12 @@ export const countdownService = {
 
   async updateCountdown(id, data, imageFile = null) {
     try {
-      console.log('✏️ Actualizando countdown:', id)
+      console.log('✏️ UPDATE - Datos recibidos:', {
+        targetDate: data.targetDate,
+        startDate: data.startDate,
+        formattedTarget: this.formatDateForDB(data.targetDate),
+        formattedStart: this.formatDateForDB(data.startDate)
+      })
       
       let backgroundImageUrl = data.backgroundImage
       
@@ -232,7 +243,7 @@ export const countdownService = {
         }
       }
       
-      console.log('📤 Actualizando en BD:', updateData)
+      console.log('📤 UPDATE a BD:', updateData)
 
       const { data: updatedData, error } = await supabase
         .from('countdowns')
@@ -313,21 +324,93 @@ export const countdownService = {
   },
 
   formatDateForDB(dateString) {
-    if (!dateString) return new Date().toISOString();
-    
-    if (dateString.includes('T') && dateString.endsWith('Z')) {
-      return dateString;
+    if (!dateString) {
+      console.log('⚠️ Fecha vacía, usando fecha actual')
+      const now = new Date()
+      const year = now.getFullYear()
+      const month = String(now.getMonth() + 1).padStart(2, '0')
+      const day = String(now.getDate()).padStart(2, '0')
+      const hours = String(now.getHours()).padStart(2, '0')
+      const minutes = String(now.getMinutes()).padStart(2, '0')
+      return `${year}-${month}-${day} ${hours}:${minutes}:00`
     }
     
-    if (dateString.includes('T')) {
-      const date = new Date(dateString);
-      const timezoneOffset = date.getTimezoneOffset() * 60000;
-      const adjustedDate = new Date(date.getTime() - timezoneOffset);
-      return adjustedDate.toISOString();
-    }
+    console.log('📅 formatDateForDB - Input:', dateString, 'Tipo:', typeof dateString)
     
-    const date = new Date(dateString + 'T00:00:00.000Z');
-    return date.toISOString();
+    try {
+      // CASO 1: datetime-local desde input HTML (YYYY-MM-DDTHH:MM)
+      if (typeof dateString === 'string' && dateString.includes('T') && dateString.length === 16) {
+        console.log('✅ Formato datetime-local detectado')
+        
+        // Convertir: "2024-12-25T06:00" → "2024-12-25 06:00:00"
+        const formatted = dateString.replace('T', ' ') + ':00'
+        
+        console.log('📤 Output PostgreSQL:', formatted)
+        return formatted
+      }
+      
+      // CASO 2: Ya es formato PostgreSQL (YYYY-MM-DD HH:MM:SS)
+      if (typeof dateString === 'string' && dateString.includes(' ') && dateString.length >= 19) {
+        console.log('✅ Ya está en formato PostgreSQL')
+        return dateString
+      }
+      
+      // CASO 3: Solo fecha (YYYY-MM-DD)
+      if (typeof dateString === 'string' && dateString.length === 10 && dateString.includes('-')) {
+        console.log('✅ Solo fecha, agregando hora 00:00:00')
+        return dateString + ' 00:00:00'
+      }
+      
+      // CASO 4: Si es un objeto Date
+      if (dateString instanceof Date) {
+        console.log('✅ Es objeto Date, convirtiendo a PostgreSQL')
+        const year = dateString.getFullYear()
+        const month = String(dateString.getMonth() + 1).padStart(2, '0')
+        const day = String(dateString.getDate()).padStart(2, '0')
+        const hours = String(dateString.getHours()).padStart(2, '0')
+        const minutes = String(dateString.getMinutes()).padStart(2, '0')
+        const seconds = String(dateString.getSeconds()).padStart(2, '0')
+        
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+      }
+      
+      // CASO 5: Si es formato ISO (YYYY-MM-DDTHH:MM:SS.sssZ)
+      if (typeof dateString === 'string' && dateString.includes('T') && dateString.endsWith('Z')) {
+        console.log('✅ Formato ISO detectado, convirtiendo')
+        const date = new Date(dateString)
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        const hours = String(date.getHours()).padStart(2, '0')
+        const minutes = String(date.getMinutes()).padStart(2, '0')
+        const seconds = String(date.getSeconds()).padStart(2, '0')
+        
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+      }
+      
+      console.warn('⚠️ Formato no reconocido:', dateString)
+      
+      // FALLBACK: Crear fecha actual
+      const now = new Date()
+      const year = now.getFullYear()
+      const month = String(now.getMonth() + 1).padStart(2, '0')
+      const day = String(now.getDate()).padStart(2, '0')
+      const hours = String(now.getHours()).padStart(2, '0')
+      const minutes = String(now.getMinutes()).padStart(2, '0')
+      
+      return `${year}-${month}-${day} ${hours}:${minutes}:00`
+      
+    } catch (error) {
+      console.error('❌ Error en formatDateForDB:', error)
+      
+      // FALLBACK absoluto
+      const now = new Date()
+      const year = now.getFullYear()
+      const month = String(now.getMonth() + 1).padStart(2, '0')
+      const day = String(now.getDate()).padStart(2, '0')
+      
+      return `${year}-${month}-${day} 00:00:00`
+    }
   },
 
   async testConnection() {
