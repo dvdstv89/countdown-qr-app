@@ -300,34 +300,28 @@ export const countdownService = {
   },
 
   formatDateForDB(dateString) {
-    if (!dateString) return new Date().toISOString()
+    if (!dateString) return new Date().toISOString();
     
     // Si ya tiene formato ISO, devolverlo
     if (dateString.includes('T') && dateString.endsWith('Z')) {
-      return dateString
+      return dateString;
     }
     
-    // Si es datetime-local (YYYY-MM-DDTHH:MM)
+    // Si es datetime-local (YYYY-MM-DDTHH:MM), manejar timezone
     if (dateString.includes('T')) {
-      return new Date(dateString).toISOString()
+      // Crear fecha en hora local
+      const date = new Date(dateString);
+      
+      // Ajustar para compensar el offset de timezone
+      const timezoneOffset = date.getTimezoneOffset() * 60000;
+      const adjustedDate = new Date(date.getTime() - timezoneOffset);
+      
+      return adjustedDate.toISOString();
     }
     
     // Si es solo fecha (YYYY-MM-DD)
-    return new Date(dateString + 'T00:00:00.000Z').toISOString()
-  },
-
-  async incrementViews(countdownId, currentViews = 0) {
-    try {
-      await supabase
-        .from('countdowns')
-        .update({ 
-          views: currentViews + 1,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', countdownId)
-    } catch (error) {
-      console.error('⚠️ Error al incrementar vistas:', error)
-    }
+    const date = new Date(dateString + 'T00:00:00.000Z');
+    return date.toISOString();
   },
 
   async testConnection() {

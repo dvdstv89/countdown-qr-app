@@ -1,4 +1,5 @@
 // pages/EditCountdown.jsx
+import { formatDateForInput, formatDateForDB } from '../utils/dateUtils';
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { countdownService } from '../services/countdownService';
@@ -103,42 +104,36 @@ export default function EditCountdown() {
   }, [previewUrl]);
 
   const loadCountdown = async () => {
-    try {
-      setLoading(true);
-      const data = await countdownService.getCountdown(id);
-      
-      // Convertir fechas al formato correcto
-      const formatDateForInput = (dateString) => {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        return date.toISOString().slice(0, 16);
-      };
-      
-      setFormData({
-        title: data.title || '',
-        message: data.message || '',
-        targetDate: formatDateForInput(data.targetDate),
-        startDate: formatDateForInput(data.startDate),
-        backgroundColor: data.backgroundColor || '#4a148c',
-        textColor: data.textColor || '#ffffff',
-        backgroundImage: data.backgroundImage || '',
-        progressIcon: data.progressIcon || 'FaHourglassHalf',
-        useImage: Boolean(data.backgroundImage),
-      });
-      
-      // Si hay imagen, establecer preview
-      if (data.backgroundImage && !data.backgroundImage.startsWith('blob:')) {
-        setPreviewUrl(data.backgroundImage);
-      }
-      
-    } catch (error) {
-      console.error('Error cargando countdown:', error);
-      toast.error('No se pudo cargar el countdown');
-      navigate('/list');
-    } finally {
-      setLoading(false);
+  try {
+    setLoading(true);
+    const data = await countdownService.getCountdown(id);
+    
+    // Usar la nueva función para formatear fechas
+    setFormData({
+      title: data.title || '',
+      message: data.message || '',
+      targetDate: formatDateForInput(data.targetDate), // ← Cambia esto
+      startDate: formatDateForInput(data.startDate),   // ← Cambia esto
+      backgroundColor: data.backgroundColor || '#4a148c',
+      textColor: data.textColor || '#ffffff',
+      backgroundImage: data.backgroundImage || '',
+      progressIcon: data.progressIcon || 'FaHourglassHalf',
+      useImage: Boolean(data.backgroundImage),
+    });
+    
+    // Si hay imagen, establecer preview
+    if (data.backgroundImage && !data.backgroundImage.startsWith('blob:')) {
+      setPreviewUrl(data.backgroundImage);
     }
-  };
+    
+  } catch (error) {
+    console.error('Error cargando countdown:', error);
+    toast.error('No se pudo cargar el countdown');
+    navigate('/list');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -221,12 +216,12 @@ export default function EditCountdown() {
     try {
       setSaving(true);
       
-      // Preparar datos para actualizar
+      // Convertir fechas al formato correcto para la BD
       const updateData = {
         ...formData,
-        // Asegurarse de que useImage sea booleano
+        targetDate: formatDateForDB(formData.targetDate), // ← Cambia esto
+        startDate: formatDateForDB(formData.startDate),   // ← Cambia esto
         useImage: Boolean(formData.useImage),
-        // Si hay previewUrl local, usarla como backgroundImage temporal
         backgroundImage: previewUrl || formData.backgroundImage
       };
       

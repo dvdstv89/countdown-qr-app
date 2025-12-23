@@ -1,13 +1,18 @@
 ﻿import React from "react";
 import ReactDOM from "react-dom/client";
-import { HashRouter } from 'react-router-dom'; // ⬅️ CAMBIAR BrowserRouter por HashRouter
 import App from "./App";
 import "./index.css";
 
+// Router condicional basado en el entorno
+const isGitHubPages = import.meta.env.PROD && window.location.hostname.includes('github.io');
+const RouterComponent = isGitHubPages 
+  ? require('react-router-dom').HashRouter
+  : require('react-router-dom').BrowserRouter;
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <HashRouter>
+    <RouterComponent basename={isGitHubPages ? '/countdown-qr-app' : '/'}>
       <App />
-    </HashRouter>
+    </RouterComponent>
   </React.StrictMode>
 );
