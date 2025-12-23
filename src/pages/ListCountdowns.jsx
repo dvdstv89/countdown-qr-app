@@ -63,7 +63,7 @@ export default function ListCountdowns() {
   };
 
   const openInNewTab = (countdown) => {
-    const link = `${import.meta.env.VITE_APP_URL || window.location.origin}/#/c/${selectedQR.public_url || selectedQR.id}`;
+    const link = `${import.meta.env.VITE_APP_URL || window.location.origin}/#/c/${countdown.public_url || countdown.id}`;
     window.open(link, '_blank');
   };
 
