@@ -185,8 +185,7 @@ export const countdownService = {
       const { error } = await supabase
         .from('countdowns')
         .update({ 
-          views: newViews,
-          last_viewed: new Date().toISOString()
+          views: newViews,          
         })
         .eq('id', countdownId)
 

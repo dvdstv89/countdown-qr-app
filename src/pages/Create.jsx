@@ -12,6 +12,7 @@ import {
   FaLink 
 } from 'react-icons/fa';
 import { countdownService } from '../services/countdownService';
+import { getCountdownUrl } from '../utils/urlUtils'; 
 
 const defaultIcons = getDefaultIcons();
 
@@ -104,7 +105,7 @@ export default function Create() {
       console.log('Respuesta del servicio:', countdownData);
       
       // URL generada
-      const countdownUrl = `${import.meta.env.VITE_APP_URL || window.location.origin}/#/c/${countdownData.public_url}`;
+      const countdownUrl = getCountdownUrl(countdownData.public_url);
       
       // Guardar referencia
       localStorage.setItem('last_countdown_url', countdownUrl)
@@ -140,7 +141,7 @@ export default function Create() {
       
       // Fallback local
       const fallbackId = `local_${Date.now().toString(36)}`
-      const fallbackUrl = `${import.meta.env.VITE_APP_URL || window.location.origin}/#/c/${fallbackId}`;
+      const fallbackUrl = getCountdownUrl(fallbackId);
       setLastCreatedUrl(fallbackUrl); 
       
       const qrDataUrl = await QRCode.toDataURL(fallbackUrl, {

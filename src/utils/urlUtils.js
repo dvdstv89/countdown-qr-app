@@ -1,14 +1,22 @@
 /**
- * Utilidades para manejar URLs en la aplicación
+ * Detectar si estamos en GitHub Pages
  */
+export const isGitHubPages = () => {
+  return window.location.hostname.includes('github.io');
+};
 
+/**
+ * Obtener la URL base completa según el entorno
+ */
 export const getBaseUrl = () => {
-  // Si estamos en GitHub Pages
-  if (window.location.hostname.includes('github.io')) {
-    return '/countdown-qr-app';
+  // GitHub Pages - URL completa
+  if (isGitHubPages()) {
+    // En GitHub Pages, necesitamos la URL completa
+    const repoName = 'countdown-qr-app'; // Tu repositorio
+    return `${window.location.origin}/${repoName}`;
   }
   
-  // Si hay una variable de entorno definida
+  // Usar variable de entorno si existe
   if (import.meta.env.VITE_APP_URL) {
     return import.meta.env.VITE_APP_URL;
   }
@@ -17,17 +25,37 @@ export const getBaseUrl = () => {
   return window.location.origin;
 };
 
-export const getCountdownUrl = (countdownId) => {
+/**
+ * Generar URL completa para ver un countdown
+ */
+export const getCountdownUrl = (idOrPublicUrl) => {
   const baseUrl = getBaseUrl();
-  // Para HashRouter, siempre añadimos # antes de la ruta
-  return `${baseUrl}/#/c/${countdownId}`;
+  // HashRouter siempre necesita #
+  return `${baseUrl}/#/c/${idOrPublicUrl}`;
 };
 
-export const getEditUrl = (countdownId) => {
+/**
+ * Generar URL completa para editar un countdown
+ */
+export const getEditUrl = (id) => {
   const baseUrl = getBaseUrl();
-  return `${baseUrl}/#/edit/${countdownId}`;
+  return `${baseUrl}/#/edit/${id}`;
 };
 
-export const copyToClipboard = (text) => {
-  return navigator.clipboard.writeText(text);
+/**
+ * Generar URL para compartir
+ */
+export const getShareUrl = (idOrPublicUrl) => {
+  return getCountdownUrl(idOrPublicUrl);
+};
+
+/**
+ * Obtener solo el path (sin el origen) - para enlaces internos con Link
+ */
+export const getCountdownPath = (idOrPublicUrl) => {
+  return `/#/c/${idOrPublicUrl}`;
+};
+
+export const getEditPath = (id) => {
+  return `/#/edit/${id}`;
 };

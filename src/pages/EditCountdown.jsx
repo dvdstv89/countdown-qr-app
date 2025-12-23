@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { QRCodeSVG } from 'qrcode.react';
 import IconRenderer from '../components/IconRenderer';
 import { getDefaultIcons } from '../services/iconMapper';
+import { getCountdownUrl } from '../utils/urlUtils';
 import { 
   FaImage, 
   FaTimes, 
@@ -275,7 +276,7 @@ export default function EditCountdown() {
       </div>
     );
   }
-  const countdownUrl = `${import.meta.env.VITE_APP_URL || window.location.origin}/#/c/${id}`;
+  const countdownUrl = getCountdownUrl(id);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
