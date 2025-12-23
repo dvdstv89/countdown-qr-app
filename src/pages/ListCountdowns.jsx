@@ -47,7 +47,7 @@ export default function ListCountdowns() {
   };
 
   const copyLink = (countdown) => {
-    const link = `${window.location.origin}/#/c/${countdown.public_url || countdown.id}`;
+    const link = `${import.meta.env.VITE_APP_URL || window.location.origin}/#/c/${selectedQR.public_url || selectedQR.id}`;
     navigator.clipboard.writeText(link);
     toast.success('¡Enlace copiado al portapapeles!');
   };
@@ -63,7 +63,7 @@ export default function ListCountdowns() {
   };
 
   const openInNewTab = (countdown) => {
-    const link = `${window.location.origin}/#/c/${countdown.public_url || countdown.id}`;
+    const link = `${import.meta.env.VITE_APP_URL || window.location.origin}/#/c/${selectedQR.public_url || selectedQR.id}`;
     window.open(link, '_blank');
   };
 
@@ -275,8 +275,8 @@ export default function ListCountdowns() {
             
             <div className="bg-white p-6 rounded-xl border border-gray-200 mb-6 flex items-center justify-center">
               <div className="bg-gray-50 p-4 rounded-lg">
-              <QRCodeSVG
-                value={`${window.location.origin}/#/c/${selectedQR.public_url || selectedQR.id}`}
+              <QRCodeSVG             
+                value={`${import.meta.env.VITE_APP_URL || window.location.origin}/#/c/${selectedQR.public_url || selectedQR.id}`}
                 size={200}
                 level="H"
                 bgColor="#FFFFFF"
@@ -307,7 +307,7 @@ export default function ListCountdowns() {
               
               <button
                 onClick={() => {
-                  const link = `${window.location.origin}/#/c/${selectedQR.public_url || selectedQR.id}`;
+                  const link = `${import.meta.env.VITE_APP_URL || window.location.origin}/#/c/${selectedQR.public_url || selectedQR.id}`;
                   window.open(link, '_blank');
                 }}
                 className="py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all font-medium flex items-center justify-center gap-2"
