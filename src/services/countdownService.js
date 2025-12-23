@@ -18,7 +18,6 @@ export const countdownService = {
 
       console.log(`✅ ${data?.length || 0} countdowns encontrados`)
       
-      // Mapear los datos al formato que usa tu app
       return data.map(item => ({
         id: item.id,
         public_url: item.public_url,
@@ -39,7 +38,6 @@ export const countdownService = {
     } catch (error) {
       console.error('💥 Error en getAllCountdowns:', error)
       
-      // Fallback a localStorage
       try {
         const localCountdowns = []
         for (let i = 0; i < localStorage.length; i++) {
@@ -66,7 +64,6 @@ export const countdownService = {
       
       let backgroundImageUrl = null
       
-      // Subir imagen si existe
       if (imageFile && data.useImage) {
         const uploadResult = await imageUploadService.uploadBackgroundImage(imageFile)
         if (uploadResult.success) {
@@ -76,14 +73,11 @@ export const countdownService = {
           backgroundImageUrl = data.backgroundImage
         }
       } else if (data.useImage && data.backgroundImage && !data.backgroundImage.startsWith('data:')) {
-        // Si es una URL de internet (no data URL)
         backgroundImageUrl = data.backgroundImage
       }
       
-      // Generar URL pública
       const tempPublicUrl = `cd_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`
       
-      // Preparar datos SIN DUPLICACIÓN
       const insertData = {
         title: data.title,
         target_date: this.formatDateForDB(data.targetDate),
@@ -94,11 +88,9 @@ export const countdownService = {
         progress_icon: data.progressIcon || 'FaHourglassHalf',       
         public_url: tempPublicUrl,
         views: 0,
-        // Solo guardar en custom_data lo que NO tiene columna propia
         custom_data: {
           start_date: this.formatDateForDB(data.startDate),
           use_image: Boolean(data.useImage),
-          // No repetir datos que ya están en columnas separadas
         }
       }
       
@@ -158,7 +150,7 @@ export const countdownService = {
 
       if (error) throw error
 
-      // Incrementar vistas
+      // Incrementar vistas - LLAMADA AL MÉTODO
       await this.incrementViews(countdownData.id, countdownData.views)
       
       return {
@@ -183,13 +175,41 @@ export const countdownService = {
     }
   },
 
+  // NUEVO MÉTODO: incrementViews
+  async incrementViews(countdownId, currentViews = 0) {
+    try {
+      console.log('🔢 Incrementando vistas para ID:', countdownId)
+      
+      const newViews = (currentViews || 0) + 1
+      
+      const { error } = await supabase
+        .from('countdowns')
+        .update({ 
+          views: newViews,
+          last_viewed: new Date().toISOString()
+        })
+        .eq('id', countdownId)
+
+      if (error) {
+        console.error('❌ Error incrementando vistas:', error)
+        return false
+      }
+
+      console.log(`✅ Vistas incrementadas a ${newViews} para ID: ${countdownId}`)
+      return true
+      
+    } catch (error) {
+      console.error('💥 Error en incrementViews:', error)
+      return false
+    }
+  },
+
   async updateCountdown(id, data, imageFile = null) {
     try {
       console.log('✏️ Actualizando countdown:', id)
       
       let backgroundImageUrl = data.backgroundImage
       
-      // Subir nueva imagen si se proporciona
       if (imageFile && data.useImage) {
         const uploadResult = await imageUploadService.uploadBackgroundImage(imageFile)
         if (uploadResult.success) {
@@ -197,7 +217,6 @@ export const countdownService = {
         }
       }
       
-      // Preparar datos para actualizar
       const updateData = {
         title: data.title,
         target_date: this.formatDateForDB(data.targetDate),
@@ -207,7 +226,6 @@ export const countdownService = {
         background_image: backgroundImageUrl,
         progress_icon: data.progressIcon || 'FaHourglassHalf',
         updated_at: new Date().toISOString(),
-        // Actualizar custom_data manteniendo datos existentes
         custom_data: {
           ...data.custom_data,
           start_date: this.formatDateForDB(data.startDate),
@@ -229,7 +247,6 @@ export const countdownService = {
         throw new Error(`Error al actualizar countdown: ${error.message}`)
       }
 
-      // Actualizar localStorage como backup
       localStorage.setItem(`countdown_${id}`, JSON.stringify({
         ...data,
         backgroundImage: backgroundImageUrl
@@ -256,7 +273,6 @@ export const countdownService = {
     } catch (error) {
       console.error('💥 Error en updateCountdown:', error)
       
-      // Fallback: guardar solo en localStorage
       try {
         localStorage.setItem(`countdown_${id}`, JSON.stringify(data))
         return data
@@ -280,7 +296,6 @@ export const countdownService = {
         throw new Error(`Error al eliminar countdown: ${error.message}`)
       }
 
-      // Eliminar de localStorage también
       localStorage.removeItem(`countdown_${id}`)
       
       console.log('✅ Countdown eliminado')
@@ -289,7 +304,6 @@ export const countdownService = {
     } catch (error) {
       console.error('💥 Error en deleteCountdown:', error)
       
-      // Fallback: eliminar solo de localStorage
       try {
         localStorage.removeItem(`countdown_${id}`)
         return true
@@ -302,24 +316,17 @@ export const countdownService = {
   formatDateForDB(dateString) {
     if (!dateString) return new Date().toISOString();
     
-    // Si ya tiene formato ISO, devolverlo
     if (dateString.includes('T') && dateString.endsWith('Z')) {
       return dateString;
     }
     
-    // Si es datetime-local (YYYY-MM-DDTHH:MM), manejar timezone
     if (dateString.includes('T')) {
-      // Crear fecha en hora local
       const date = new Date(dateString);
-      
-      // Ajustar para compensar el offset de timezone
       const timezoneOffset = date.getTimezoneOffset() * 60000;
       const adjustedDate = new Date(date.getTime() - timezoneOffset);
-      
       return adjustedDate.toISOString();
     }
     
-    // Si es solo fecha (YYYY-MM-DD)
     const date = new Date(dateString + 'T00:00:00.000Z');
     return date.toISOString();
   },
